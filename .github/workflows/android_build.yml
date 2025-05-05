@@ -56,5 +56,9 @@ jobs:
         run: flutter build apk --release
         # 如果你需要的是 APK 文件:
         # run: flutter build apk --release
-
+      - name: Upload application artifact
+        uses: actions/upload-artifact@v3 # 或其他版本 v3, v2
+        with:
+          name: apk-release # 构件名称
+          path: build/app/outputs/flutter-apk/
       
