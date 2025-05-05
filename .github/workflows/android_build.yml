@@ -48,6 +48,8 @@ jobs:
       - name: 获取 Flutter 依赖项
         run: flutter pub get
 
+      - name: 接受安卓 SDK 许可证
+        run: yes | $ANDROID_HOME/cmdline-tools/latest/bin/sdkmanager --licenses
 
       # 步骤 7: 构建 Flutter 安卓 App Bundle (AAB) - Release 版本
       - name: 构建安卓 Apk (Apk)
