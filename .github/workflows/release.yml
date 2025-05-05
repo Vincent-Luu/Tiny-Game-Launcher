@@ -1,10 +1,8 @@
+name: Create GitHub Release
 on:
   push:
-    # 只在推送 Git 标签（例如 v1.0.0, v2.1-beta）时触发这个工作流程
-    # 我们使用 'v*' 来匹配所有以 'v' 开头的标签
     tags:
       -'*'
-
 jobs:
   # 这个作业负责构建 Flutter 安卓应用并创建 Release
   build_and_release:
@@ -19,7 +17,7 @@ jobs:
           # 使用 softprops/action-gh-release 这个 Action
           # 它会自动使用触发工作流程的 Git 标签来创建 Release
           - name: 创建 GitHub Release 并上传构建产物
-            uses: softprops/action-gh-release@v2 # 推荐使用明确的版本号，例如 v2
+            uses: softprops/action-gh-release@v2.2.2 # 推荐使用明确的版本号，例如 v2
             # env:
             #   GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }} # Action 默认会使用这个，通常不需要显式设置
             with:
