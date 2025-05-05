@@ -7,11 +7,11 @@ on:
     # 只在推送 Git 标签（例如 v1.0.0, v2.1-beta）时触发这个工作流程
     # 我们使用 'v*' 来匹配所有以 'v' 开头的标签
     tags:
-      - 'v*'
+      -'*'
     # 如果你还想在推送到 main 分支时运行构建（但不发布），可以保留它
-    # branches: [ "main" ]
-  # pull_request:
-    # branches: [ "main" ] # 通常不在 PR 时发布
+     #branches: [ "main" ]
+  #pull_request:
+     #branches: [ "main" ] # 通常不在 PR 时发布
 
 # 一个工作流程由一个或多个按顺序或并行运行的作业 (jobs) 组成
 jobs:
