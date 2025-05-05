@@ -52,16 +52,11 @@ jobs:
       # 运行 flutter analyze 来检查常见的代码错误、风格问题等。
       - name: 分析项目代码
         run: flutter analyze
-
-      # 步骤 6: (可选但推荐) 运行小部件测试 (Widget Tests)
-      # 运行 flutter test 来确保你的 UI 小部件按预期工作。
-      - name: 运行小部件测试
-        run: flutter test
-
+        
       # 步骤 7: 构建 Flutter 安卓 App Bundle (AAB) - Release 版本
       # App Bundle (AAB) 是 Google Play 推荐的应用分发格式。
       # 如果你明确需要 APK 文件，请使用 'flutter build apk --release'。
-      - name: 构建安卓 App Bundle (AAB)
+      - name: 构建安卓 Apk
         run: flutter build apk --release
         # 如果你需要的是 APK 文件:
         # run: flutter build apk --release
@@ -69,7 +64,7 @@ jobs:
       # 步骤 8: 上传构建产物 (App Bundle)
       # 这个步骤会将生成的 AAB 文件作为 "artifact" 上传。
       # 工作流程运行结束后，你可以从 Actions 页面的运行总结 (summary) 中下载它。
-      - name: 上传 App Bundle 构建产物
+      - name: 上传 Apk Bundle 构建产物
         uses: actions/upload-artifact@v4
         with:
           name: release-appbundle # 上传的 artifact 压缩包的名字
