@@ -1,0 +1,79 @@
+# 工作流程名称
+name: Flutter 安卓构建
+
+# 控制工作流程何时运行
+on:
+  push:
+    branches: [ "main" ] # 当代码推送到 main 分支时运行
+  pull_request:
+    branches: [ "main" ] # 当有 Pull Request 指向 main 分支时运行
+
+# 一个工作流程由一个或多个按顺序或并行运行的作业 (jobs) 组成
+jobs:
+  # 这个作业负责构建 Flutter 安卓应用
+  build_android: # 作业的 ID
+    # 作业将运行在什么类型的运行器 (runner) 上
+    # 对 Flutter/安卓 CI 来说，使用 ubuntu-latest 很常见且支持良好
+    runs-on: ubuntu-latest
+
+    # 步骤 (steps) 代表了作为作业一部分将要执行的一系列任务
+    steps:
+      # 步骤 1: 检出代码仓库
+      # 使用 actions/checkout@v4 这个官方 action 来获取你的代码
+      - name: 检出代码仓库
+        uses: actions/checkout@v4
+
+      # 步骤 2: 设置 Java 环境 (JDK) - 安卓构建必需
+      # 使用 Temurin 发行版，版本 17 是一个常见的现代选择。
+      # 如果需要，Flutter 也支持 JDK 11。
+      - name: 设置 Java 环境 (JDK)
+        uses: actions/setup-java@v4
+        with:
+          distribution: 'temurin'
+          java-version: '17' # 或者 '11'
+
+      # 步骤 3: 设置 Flutter SDK
+      # 使用由 subosito 维护的标准 action。
+      # 'stable' 渠道使用最新的 Flutter 稳定版。
+      # 如果需要，你也可以固定到特定版本，如 '3.19.0'。
+      # cache 设置为 true 可以加速后续的构建。
+      - name: 设置 Flutter SDK
+        uses: subosito/flutter-action@v2
+        with:
+          channel: 'stable' # 或者 'beta', 'dev', 'master', 或特定版本如 '3.19.0'
+          cache: true
+
+      # 步骤 4: 获取 Flutter 依赖项
+      # 运行 flutter pub get 来下载项目所需的 Dart/Flutter 包。
+      - name: 获取 Flutter 依赖项
+        run: flutter pub get
+
+      # 步骤 5: (可选但推荐) 分析项目代码
+      # 运行 flutter analyze 来检查常见的代码错误、风格问题等。
+      - name: 分析项目代码
+        run: flutter analyze
+
+      # 步骤 6: (可选但推荐) 运行小部件测试 (Widget Tests)
+      # 运行 flutter test 来确保你的 UI 小部件按预期工作。
+      - name: 运行小部件测试
+        run: flutter test
+
+      # 步骤 7: 构建 Flutter 安卓 App Bundle (AAB) - Release 版本
+      # App Bundle (AAB) 是 Google Play 推荐的应用分发格式。
+      # 如果你明确需要 APK 文件，请使用 'flutter build apk --release'。
+      - name: 构建安卓 App Bundle (AAB)
+        run: flutter build apk --release
+        # 如果你需要的是 APK 文件:
+        # run: flutter build apk --release
+
+      # 步骤 8: 上传构建产物 (App Bundle)
+      # 这个步骤会将生成的 AAB 文件作为 "artifact" 上传。
+      # 工作流程运行结束后，你可以从 Actions 页面的运行总结 (summary) 中下载它。
+      - name: 上传 App Bundle 构建产物
+        uses: actions/upload-artifact@v4
+        with:
+          name: release-appbundle # 上传的 artifact 压缩包的名字
+          path: build/app/outputs/bundle/release/apk-release.apk # 指向生成的 AAB 文件的路径
+          # 如果你构建的是 APK，请使用这个路径:
+          # path: build/app/outputs/flutter-apk/app-release.apk
+          # 并且相应地修改 artifact 的名字 (例如, release-apk)
