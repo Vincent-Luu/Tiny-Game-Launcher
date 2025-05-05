@@ -1,42 +1,59 @@
-name: Create GitHub Release
+name: Build and Release Flutter Android App
+
 on:
   push:
     tags:
-      -'*'
+      - '*'
+
 jobs:
-  # 这个作业负责构建 Flutter 安卓应用并创建 Release
-  build_and_release:
-    # 作业将运行在什么类型的运行器 (runner) 上
+  build:
+    name: Build Flutter Android APK
     runs-on: ubuntu-latest
 
-    # **重要**: 需要设置权限，允许 Action 创建 Release 和上传文件
-    permissions:
-      contents: write # 允许写入仓库内容（创建 Release 和上传附件）
     steps:
-        # 步骤 8: 创建 GitHub Release 并上传构建产物
-          # 使用 softprops/action-gh-release 这个 Action
-          # 它会自动使用触发工作流程的 Git 标签来创建 Release
-          - name: 创建 GitHub Release 并上传构建产物
-            uses: softprops/action-gh-release@v2.2.2 # 推荐使用明确的版本号，例如 v2
-            # env:
-            #   GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }} # Action 默认会使用这个，通常不需要显式设置
-            with:
-              # 要上传的文件路径。支持通配符。
-              # 根据你步骤 7 构建的是 AAB 还是 APK 来选择正确的路径。
-              files: build/app/outputs/flutter-apk/app-release.apk
-              # 如果构建的是 APK:
-              # files: build/app/outputs/flutter-apk/app-release.apk
-    
-              # 可选: Release 的名称。默认使用 Git 标签名。
-              # name: "应用发布版 ${{ github.ref_name }}"
-    
-              # 可选: Release 的正文内容。可以从文件读取或直接写入。
-              # body: "这是由 GitHub Actions 自动发布的版本。"
-              # body_path: "CHANGELOG.md" # 例如，从 CHANGELOG 文件读取
-    
-              # 可选: 标记为草稿 (Draft) Release，而不是直接发布。
-              # draft: false
-    
-              # 可选: 标记为预发布 (Pre-release) 版本。
-              # 如果你的标签名包含 '-alpha', '-beta', '-rc' 等，可以自动设为 true
-              prerelease: contains(github.ref, '-beta') || contains(github.ref, '-alpha') || contains(github.ref, '-rc')
+      # 检出代码
+      - name: Checkout code
+        uses: actions/checkout@v3
+
+      # 设置 Flutter 环境
+      - name: Set up Flutter
+        uses: subosito/flutter-action@v2
+        with:
+          flutter-version: 'stable'
+
+      # 安装 Flutter 依赖
+      - name: Install dependencies
+        run: flutter pub get
+
+      # 构建安卓 APK
+      - name: Build Android APK
+        run: flutter build apk --release
+
+      # 保存 APK 为构件
+      - name: Upload APK to artifacts
+        uses: actions/upload-artifact@v3
+        with:
+          name: android-apk
+          path: build/app/outputs/flutter-apk/app-release.apk
+
+  release:
+    name: Create Release and Upload APK
+    needs: build
+    runs-on: ubuntu-latest
+
+    steps:
+      # 检出代码
+      - name: Checkout code
+        uses: actions/checkout@v3
+
+      # 创建 Release 并上传 APK
+      - name: Create Release and Upload APK
+        uses: ncipollo/release-action@v1
+        with:
+          artifacts: build/app/outputs/flutter-apk/app-release.apk
+          tag: ${{ github.ref_name }}
+          name: Release ${{ github.ref_name }}
+          body: |
+            This release includes the latest APK for tag `${{ github.ref_name }}`
+          draft: false
+          prerelease: false
