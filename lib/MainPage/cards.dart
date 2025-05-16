@@ -78,15 +78,24 @@ class EachCard extends StatelessWidget {
                   children: [
                     Expanded(
                       flex: 1,
-                      child: TextButton(
-                        onPressed: () => _launchGame(context),
-                        child: Row(
-                          mainAxisAlignment: MainAxisAlignment.center,
-                          children: [
-                            Text('国  服 '),
-                            Icon(Icons.play_arrow_rounded),
-                          ],
-                        ),
+                      child: Row(
+                        children: [
+                          Expanded(flex: 1, child: SizedBox()),
+                          Expanded(
+                            flex: 5,
+                            child: TextButton(
+                              onPressed: () => _launchGame(context),
+                              child: Row(
+                                mainAxisAlignment: MainAxisAlignment.center,
+                                children: [
+                                  Text('国  服 '),
+                                  Icon(Icons.play_arrow_rounded),
+                                ],
+                              ),
+                            ),
+                          ),
+                          Expanded(flex: 1, child: SizedBox()),
+                        ],
                       ),
                     ),
                     Expanded(
@@ -94,9 +103,8 @@ class EachCard extends StatelessWidget {
                       child: Row(
                         children: [
                           Expanded(flex: 1, child: SizedBox()),
-
                           Expanded(
-                            flex: 2,
+                            flex: 5,
                             child: TextButton(
                               onPressed: () => _launchGame2(context),
                               child: Row(
@@ -108,7 +116,6 @@ class EachCard extends StatelessWidget {
                               ),
                             ),
                           ),
-
                           Expanded(flex: 1, child: SizedBox()),
                         ],
                       ),
@@ -117,15 +124,24 @@ class EachCard extends StatelessWidget {
                       visible: isVisible,
                       child: Expanded(
                         flex: 1,
-                        child: TextButton(
-                          onPressed: () => _launchGameByUrl(context),
-                          child: Row(
-                            mainAxisAlignment: MainAxisAlignment.center,
-                            children: [
-                              Text('云游戏 '),
-                              Icon(Icons.play_arrow_rounded),
-                            ],
-                          ),
+                        child: Row(
+                          children: [
+                            Expanded(flex: 1, child: SizedBox()),
+                            Expanded(
+                              flex: 5,
+                              child: TextButton(
+                                onPressed: () => _launchGameByUrl(context),
+                                child: Row(
+                                  mainAxisAlignment: MainAxisAlignment.center,
+                                  children: [
+                                    Text('云游戏 '),
+                                    Icon(Icons.play_arrow_rounded),
+                                  ],
+                                ),
+                              ),
+                            ),
+                            Expanded(flex: 1, child: SizedBox()),
+                          ],
                         ),
                       ),
                     ),
