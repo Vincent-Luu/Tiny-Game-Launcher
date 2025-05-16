@@ -1,0 +1,59 @@
+name: Build and Release Flutter Android App
+
+on:
+  push:
+    tags:
+      - '*'
+
+jobs:
+  build:
+    name: Build Flutter Android APK
+    runs-on: ubuntu-latest
+
+    steps:
+      # 检出代码
+      - name: Checkout code
+        uses: actions/checkout@v3
+
+      # 设置 Flutter 环境
+      - name: Set up Flutter
+        uses: subosito/flutter-action@v2
+        with:
+          flutter-version: 'stable'
+
+      # 安装 Flutter 依赖
+      - name: Install dependencies
+        run: flutter pub get
+
+      # 构建安卓 APK
+      - name: Build Android APK
+        run: flutter build apk --release
+
+      # 保存 APK 为构件
+      - name: Upload APK to artifacts
+        uses: actions/upload-artifact@v3
+        with:
+          name: android-apk
+          path: build/app/outputs/flutter-apk/app-release.apk
+
+  release:
+    name: Create Release and Upload APK
+    needs: build
+    runs-on: ubuntu-latest
+
+    steps:
+      # 检出代码
+      - name: Checkout code
+        uses: actions/checkout@v3
+
+      # 创建 Release 并上传 APK
+      - name: Create Release and Upload APK
+        uses: ncipollo/release-action@v1
+        with:
+          artifacts: build/app/outputs/flutter-apk/app-release.apk
+          tag: ${{ github.ref_name }}
+          name: Release ${{ github.ref_name }}
+          body: |
+            This release includes the latest APK for tag `${{ github.ref_name }}`
+          draft: false
+          prerelease: false

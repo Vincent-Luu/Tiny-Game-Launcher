@@ -1,0 +1,64 @@
+# 工作流程名称
+name: Flutter 安卓构建与发布
+
+# 控制工作流程何时运行
+on:
+  push:
+    # 只在推送 Git 标签（例如 v1.0.0, v2.1-beta）时触发这个工作流程
+    # 我们使用 'v*' 来匹配所有以 'v' 开头的标签
+    #tags:
+     # -'*'
+    # 如果你还想在推送到 main 分支时运行构建（但不发布），可以保留它
+     branches: [ "main" ]
+  pull_request:
+     branches: [ "main" ] # 通常不在 PR 时发布
+
+# 一个工作流程由一个或多个按顺序或并行运行的作业 (jobs) 组成
+jobs:
+  # 这个作业负责构建 Flutter 安卓应用并创建 Release
+  build_and_release:
+    # 作业将运行在什么类型的运行器 (runner) 上
+    runs-on: ubuntu-latest
+
+    # **重要**: 需要设置权限，允许 Action 创建 Release 和上传文件
+    permissions:
+      contents: write # 允许写入仓库内容（创建 Release 和上传附件）
+
+    # 步骤 (steps) 代表了作为作业一部分将要执行的一系列任务
+    steps:
+      # 步骤 1: 检出代码仓库
+      - name: 检出代码仓库
+        uses: actions/checkout@v4
+
+      # 步骤 2: 设置 Java 环境 (JDK)
+      - name: 设置 Java 环境 (JDK)
+        uses: actions/setup-java@v4
+        with:
+          distribution: 'temurin'
+          java-version: '17'
+
+      # 步骤 3: 设置 Flutter SDK
+      - name: 设置 Flutter SDK
+        uses: subosito/flutter-action@v2
+        with:
+          channel: 'stable'
+          cache: true
+
+      # 步骤 4: 获取 Flutter 依赖项
+      - name: 获取 Flutter 依赖项
+        run: flutter pub get
+
+      - name: 接受安卓 SDK 许可证
+        run: yes | $ANDROID_HOME/cmdline-tools/latest/bin/sdkmanager --licenses
+
+      # 步骤 7: 构建 Flutter 安卓 App Bundle (AAB) - Release 版本
+      - name: 构建安卓 Apk (Apk)
+        run: flutter build apk --release
+        # 如果你需要的是 APK 文件:
+        # run: flutter build apk --release
+      - name: Upload application artifact
+        uses: actions/upload-artifact@v4.6.2 # 或其他版本 v3, v2
+        with:
+          name: apk-release # 构件名称
+          path: build/app/outputs/flutter-apk/
+      
